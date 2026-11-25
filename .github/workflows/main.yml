@@ -1,0 +1,33 @@
+name: Generate Sigstore Attestation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate artifact attestation
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: README.md
+
+      - name: Upload Sigstore Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: sigstore-attestation-bundle
+          path: ${{ steps.attest.outputs.bundle-path }}
